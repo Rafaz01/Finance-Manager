@@ -1,235 +1,558 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finance Dashboard</title>
-    <link rel="icon" type="images/x-icon" href="/images/favicon.ico">
-    <!-- Add any CSS libraries or stylesheets here -->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Material icon-->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Budget Tracker — Rafael Gomez</title>
+  <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0d0f14;
+      --surface:    #13161d;
+      --surface2:   #1a1e28;
+      --border:     rgba(255,255,255,0.07);
+      --border2:    rgba(255,255,255,0.13);
+      --text:       #f0f2f7;
+      --muted:      #6b7280;
+      --accent:     #4ade80;
+      --accent-dim: rgba(74,222,128,0.12);
+      --red:        #f87171;
+      --red-dim:    rgba(248,113,113,0.12);
+      --yellow:     #fbbf24;
+      --mono: 'DM Mono', monospace;
+      --sans: 'Syne', sans-serif;
+    }
+    [data-theme="light"] {
+      --bg:         #f4f6fb;
+      --surface:    #ffffff;
+      --surface2:   #eef0f6;
+      --border:     rgba(0,0,0,0.07);
+      --border2:    rgba(0,0,0,0.13);
+      --text:       #1a1e28;
+      --muted:      #7b8394;
+      --accent:     #16a34a;
+      --accent-dim: rgba(22,163,74,0.1);
+      --red:        #dc2626;
+      --red-dim:    rgba(220,38,38,0.1);
+      --yellow:     #d97706;
+    }
+
+    html { height: 100%; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      height: 100vh;
+      display: grid;
+      grid-template-rows: 54px auto 1fr auto;
+      grid-template-columns: 240px 1fr 290px;
+      grid-template-areas:
+        "ticker  ticker  ticker"
+        "header  header  header"
+        "sidebar main    right"
+        "footer  footer  footer";
+      transition: background 0.25s, color 0.25s;
+      overflow: hidden;
+    }
+
+    /* TICKER */
+    .ticker-bar { grid-area: ticker; background: var(--surface); border-bottom: 1px solid var(--border); height: 54px; overflow: hidden; }
+    .ticker-bar .tradingview-widget-container { height: 54px !important; }
+    .ticker-bar iframe { height: 54px !important; }
+
+    /* HEADER */
+    header {
+      grid-area: header;
+      padding: 0.9rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; display: flex; align-items: center; gap: 0.5rem; }
+    .logo-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; transition: background 0.25s; }
+    .header-right { display: flex; align-items: center; gap: 1rem; }
+    .month-label { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+    .theme-toggle {
+      display: flex; align-items: center;
+      background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; cursor: pointer;
+    }
+    .theme-toggle span {
+      padding: 0.32rem 0.55rem; font-size: 1rem; color: var(--muted);
+      display: flex; align-items: center; transition: all 0.2s; user-select: none;
+    }
+    .theme-toggle span.active { background: var(--accent); color: #0d0f14; }
+    [data-theme="light"] .theme-toggle span.active { color: #fff; }
+
+    /* SIDEBAR */
+    aside {
+      grid-area: sidebar;
+      background: var(--surface); border-right: 1px solid var(--border);
+      padding: 1.25rem 1rem; display: flex; flex-direction: column; gap: 0.3rem;
+    }
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0 0.5rem 1rem; border-bottom: 1px solid var(--border); margin-bottom: 0.5rem;
+    }
+    .sidebar-logo img { width: 34px; height: 34px; border-radius: 8px; object-fit: cover; }
+    .sidebar-logo-text { font-weight: 800; font-size: 0.9rem; }
+
+    .nav-label { font-family: var(--mono); font-size: 0.62rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; padding: 0.75rem 0.75rem 0.2rem; }
+    .nav-item {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.58rem 0.75rem; border-radius: 8px;
+      font-size: 0.84rem; font-weight: 600; cursor: pointer;
+      color: var(--muted); transition: all 0.15s;
+      border: none; background: none; width: 100%; text-align: left; text-decoration: none;
+    }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active { background: var(--accent-dim); color: var(--accent); }
+    .nav-item .material-symbols-outlined { font-size: 1.1rem; }
+
+    /* MAIN */
+    main { grid-area: main; padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.2rem; }
+
+    /* STATS */
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.2rem 1.4rem; position: relative; overflow: hidden; transition: background 0.25s, border-color 0.25s;
+    }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .stat-card.balance::before { background: var(--yellow); }
+    .stat-card.income::before  { background: var(--accent); }
+    .stat-card.expense::before { background: var(--red); }
+    .stat-icon { font-size: 1.3rem; margin-bottom: 0.45rem; }
+    .stat-card.balance .stat-icon { color: var(--yellow); }
+    .stat-card.income .stat-icon  { color: var(--accent); }
+    .stat-card.expense .stat-icon { color: var(--red); }
+    .stat-label { font-family: var(--mono); font-size: 0.66rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.35rem; }
+    .stat-amount { font-family: var(--mono); font-size: 1.65rem; font-weight: 500; letter-spacing: -0.03em; line-height: 1; }
+    .stat-card.balance .stat-amount { color: var(--yellow); }
+    .stat-card.income .stat-amount  { color: var(--accent); }
+    .stat-card.expense .stat-amount { color: var(--red); }
+    .stat-sub { font-size: 0.7rem; color: var(--muted); margin-top: 0.3rem; }
+
+    /* PANEL */
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: background 0.25s, border-color 0.25s; }
+    .panel-header { padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .panel-title { font-size: 0.86rem; font-weight: 700; }
+
+    /* ADD FORM */
+    .add-form { padding: 1.1rem 1.25rem; display: flex; flex-direction: column; gap: 0.8rem; }
+    .type-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .type-btn {
+      padding: 0.52rem; border-radius: 8px; border: 1px solid var(--border2);
+      background: none; font-family: var(--sans); font-size: 0.8rem; font-weight: 700;
+      cursor: pointer; color: var(--muted); transition: all 0.15s;
+    }
+    .type-btn.active.income  { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+    .type-btn.active.expense { background: var(--red-dim); color: var(--red); border-color: var(--red); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.28rem; }
+    .form-label { font-family: var(--mono); font-size: 0.64rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .form-input, .form-select {
+      background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px;
+      color: var(--text); font-family: var(--sans); font-size: 0.875rem;
+      padding: 0.52rem 0.85rem; outline: none; transition: border-color 0.15s, background 0.25s; width: 100%;
+    }
+    .form-input:focus, .form-select:focus { border-color: var(--accent); }
+    .form-select option { background: var(--surface); color: var(--text); }
+    .btn-submit {
+      width: 100%; padding: 0.62rem; border-radius: 8px; border: none;
+      background: var(--accent); color: #0d0f14; font-family: var(--sans);
+      font-size: 0.875rem; font-weight: 700; cursor: pointer; transition: opacity 0.15s;
+    }
+    .btn-submit:hover { opacity: 0.85; }
+
+    /* FILTER */
+    .filter-row { display: flex; gap: 0.4rem; }
+    .filter-btn {
+      font-family: var(--sans); font-size: 0.7rem; font-weight: 600;
+      padding: 0.26rem 0.6rem; border-radius: 6px; border: 1px solid var(--border2);
+      background: none; color: var(--muted); cursor: pointer; transition: all 0.15s;
+    }
+    .filter-btn.active { background: var(--surface2); color: var(--text); }
+
+    /* TX LIST */
+    .tx-list { padding: 0.35rem 0; min-height: 100px; }
+    .tx-empty { padding: 2.5rem 1.25rem; text-align: center; color: var(--muted); font-size: 0.8rem; }
+    .tx-item { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 0.7rem; padding: 0.62rem 1.25rem; transition: background 0.1s; }
+    .tx-item:hover { background: var(--surface2); }
+    .tx-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0; }
+    .tx-icon.income  { background: var(--accent-dim); }
+    .tx-icon.expense { background: var(--red-dim); }
+    .tx-name { font-size: 0.84rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tx-meta { display: flex; align-items: center; gap: 0.4rem; margin-top: 1px; }
+    .tx-date { font-family: var(--mono); font-size: 0.64rem; color: var(--muted); }
+    .tx-cat { font-size: 0.61rem; font-weight: 600; padding: 0.1rem 0.38rem; border-radius: 4px; background: var(--surface2); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .tx-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.18rem; }
+    .tx-amount { font-family: var(--mono); font-size: 0.86rem; font-weight: 500; }
+    .tx-amount.income  { color: var(--accent); }
+    .tx-amount.expense { color: var(--red); }
+    .tx-del { font-size: 0.61rem; color: var(--muted); cursor: pointer; opacity: 0; transition: opacity 0.15s; background: none; border: none; font-family: var(--mono); }
+    .tx-item:hover .tx-del { opacity: 1; }
+    .tx-del:hover { color: var(--red); }
+
+    /* BREAKDOWN */
+    .breakdown-list { padding: 0.85rem 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .breakdown-item { display: flex; flex-direction: column; gap: 0.28rem; }
+    .breakdown-top { display: flex; justify-content: space-between; align-items: center; }
+    .breakdown-cat { font-size: 0.78rem; font-weight: 600; }
+    .breakdown-pct { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); }
+    .breakdown-bar { height: 3px; background: var(--surface2); border-radius: 999px; overflow: hidden; }
+    .breakdown-fill { height: 100%; border-radius: 999px; transition: width 0.4s ease; }
+
+    /* RIGHT */
+    .right-panel { grid-area: right; background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; transition: background 0.25s; }
+    .right-panel-header { padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .right-panel-title { font-size: 0.86rem; font-weight: 700; }
+    .news-container { flex: 1; overflow: hidden; min-height: 0; position: relative; }
+    .news-container .tradingview-widget-news { position: absolute; inset: 0; }
+    .news-container iframe { width: 100% !important; height: 100% !important; }
+
+    /* FOOTER */
+    footer { grid-area: footer; background: var(--surface); border-top: 1px solid var(--border); padding: 0.8rem 1.5rem; display: flex; justify-content: center; }
+    footer p { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
+
+    /* RESPONSIVE */
+    @media (max-width: 1100px) {
+      body { grid-template-columns: 220px 1fr; grid-template-areas: "ticker ticker" "header header" "sidebar main" "footer footer"; }
+      .right-panel { display: none; }
+    }
+    @media (max-width: 720px) {
+      body { grid-template-columns: 1fr; grid-template-areas: "ticker" "header" "main" "footer"; }
+      aside { display: none; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 460px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      main { padding: 1rem; }
+    }
+  </style>
 </head>
-<!-- TradingView Widget BEGIN -->
-<nav>
-<div class="tradingview-widget-container">
-    <div class="tradingview-widget-container"></div>
-  </div>
-</nav>
-<!-- TradingView Widget BEGIN -->
 <body>
-    <div class ="container">
-    <aside>
-<div class = "top">
-    <div class="logo">
-        <img src="images/logo.png" alt="Finance Manager Logo">
-        <h2>Finance <spa class="success">Manager</span></h2>
-<div class="close" id="close-btn">
-    <span class="material-icons">close</span>
-</div>
-    </div>
-</div>
 
-       <div class="sidebar">
-        <a href="index.html" class="active">
-        <span class="material-symbols-outlined">grid_view</span>
-        <h3>Dashboard</h3>
-        </a>
-        <a href="jquery.html">
-            <span class="material-symbols-outlined">monitoring</span>
-            <h3>jquery</h3>
-            </a>
-            <a href="form.html">
-                <span class="material-symbols-outlined">chat</span>
-                <h3>form</h3>
-                <span class="message-count">26</span>
-                </a>
-                <a href="date_calculations.html">
-                    <span class="material-symbols-outlined">calculate</span>
-                    <h3>Date calculator</h3>
-                    </a>
-                    <a href="cookies.html">
-                        <span class="material-symbols-outlined">cookie</span>
-                        <h3>Cookiess</h3>
-                        </a>
-                        <a href="local_storage.html">
-                            <span class="material-symbols-outlined">save</span>
-                            <h3>Local Storage</h3>
-                            </a> 
-                            <a href="ajax.html">
-                                <span class="material-symbols-outlined">settings</span>
-                                <h3>Ajax</h3>
-                                </a>   
-                        <a href="">
-                            <span class="material-symbols-outlined">logout</span>
-                            <h3>Logout</h3>
-                            </a>             
-       </div>
-        </aside>
-        <main>
-            
-        <h1>Dashboard - js.coding</h1>
-        
-
-  <!-- TradingView Widget END -->
-  
-        <div class="insights">
-        
-            <div class="total-budget">
-                <span class="material-icons">analytics</span>
-                <div class="middle">
-                    <div class="left">
-                        <h3>Total Budget</h3>
-                        <h1 id="total-budget">$0.00</h1>
-                    </div>
-                    <div class="progress">
-                        <svg>
-                            <circle cx="38" cy="38" r="36"></circle>
-                        </svg>
-                        <div class="number">
-                            <p id="total-budget">100%</p>
-                        </div>
-                    </div>
-                </div>
-                <small class = "text-muted">Last 24 hours</small>
-            </div>
-            <!---------------------end of budget-------------------------------->
-            <div class="expenses">
-                <span class="material-icons">bar_chart</span>
-                <div class="middle">
-                    <div class="left">
-                        <h3>Total expenses</h3>
-                        <h1 id="total-expenses">$0.00</h1>
-                    </div>
-                    <div class="progress">
-                        <svg>
-                            <circle cx="38" cy="38" r="36"></circle>
-                        </svg>
-                        <div class="number">
-                            <p id="expenses-percentage">0%</p>
-                        </div>
-                    </div>
-                </div>
-                <small class = "text-muted">Last 24 hours</small>
-            </div>
-            <!-----------END OF EXPENSES--------------->
-
-             <!----------start of icome--------->
-            <div class="income-up">
-                <span class="material-icons">trending_up</span>
-                <div class="middle">
-                    <div class="left">
-                        <h3>Total Income</h3>
-                        <h1 id="total-income">$0.00</h1>
-                    </div>
-                    <div class="progress">
-                        <svg>
-                            <circle cx="38" cy="38" r="36"></circle>
-                        </svg>
-                        <div class="number">
-                            <p id="income-percentage">0%</p>
-                        </div>
-                    </div>
-                </div>
-                <small class = "text-muted">Last 24 hours</small>
-            </div>
-            
-            <!----------end of icome--------->
-
-            <!-- Wrapper-->
-            <div class="wrapper">
-                <h1>Expense Tracker</h1>
-                <div class="position">
-                    <div>
-                    <h2>Total Balance</h2>
-                    <span id="balance">$0.00</span>
-                </div>
-                <div>
-                    <h3>Income</h3>
-                    <span id="income">$0.00</span>
-                </div>
-                <div>
-                    <h3>Expense</h3>
-                    <span id="expense">$0.00</span>
-                </div>
-            </div>
-        </div>
-        
-    <div class="transaction">
-        <h1>Add transaction</h1>
-        <form id="transactionForm">
-            <div>
-                <label for="type">
-                    <input type="checkbox" name="type" id="type" />
-                    <div class="option">
-                        <span>Expense</span>
-                        <span>Income</span>
-
-                    </div>
-                </label>
-
-
-
-            </div>
-        <div>
-            <label for="name">Name</label>
-            <input type="text" name="name" required/>
-        </div>
-        <div>
-            <label for="amount">Amount</label>
-            <input type="number" name="amount" value="0" min= "0.01" step="0.01" required/>
-        </div>
-        <div>
-            <label for="date">Date</label>
-            <input type="date" name="date" required/>
-        </div>
-        <button type="submit">Submit</button>
-    </form>
-    </div>
-    <div class="transactionList">
-        <h1>Transactions</h1>
-        <ul id="transactionList"></ul>
-        <div id="status"></div>
-
-
-    </div>
-    </div>
-    </main>
-        <!----------------END OF MAIN------------------->
-<div class="right">
-    <!-----------------------Right start here-->
-    <div class="top">
-<button>
-    <button id="menu-btn">
-    <span class="material-icons">menu</span>
-</button>
-<div class="theme-toggler">
-    <span class="material-icons active">light_mode</span>
-    <span class="material-icons">dark_mode</span>
-</div>
-</div>
-
-<!-----------------------End of top-->
-
-<!-- TradingView Widget BEGIN -->
-<div class="tradingview-widget-news">
-    <div class="tradingview-widget-container__widget"></div>
+  <!-- TICKER -->
+  <div class="ticker-bar">
+    <div class="tradingview-widget-container" id="ticker-widget"></div>
   </div>
-  
-    <!-- TradingView Widget END -->
-</div> <!--------end of right-->
-</div> <!------end of container-->
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-dot"></div>
+      Budget Tracker
+    </div>
+    <div class="header-right">
+      <span class="month-label" id="current-month"></span>
+      <div class="theme-toggle" id="theme-toggle" title="Toggle theme">
+        <span class="material-symbols-outlined active" id="icon-light">light_mode</span>
+        <span class="material-symbols-outlined" id="icon-dark">dark_mode</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside>
+    <div class="sidebar-logo">
+      <img src="images/logo.png" alt="Logo" onerror="this.style.display='none'" />
+      <span class="sidebar-logo-text">Finance <span style="color:var(--accent)">Manager</span></span>
+    </div>
+    <span class="nav-label">Menu</span>
+    <a href="index.html" class="nav-item active">
+      <span class="material-symbols-outlined">grid_view</span> Dashboard
+    </a>
+    <span class="nav-label">Quick Add</span>
+    <button class="nav-item" onclick="setType('income')">
+      <span class="material-symbols-outlined" style="color:var(--accent)">add_circle</span> Add Income
+    </button>
+    <button class="nav-item" onclick="setType('expense')">
+      <span class="material-symbols-outlined" style="color:var(--red)">remove_circle</span> Add Expense
+    </button>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+
+    <div class="stats-grid">
+      <div class="stat-card balance">
+        <div class="stat-icon material-symbols-outlined">account_balance_wallet</div>
+        <div class="stat-label">Net Balance</div>
+        <div class="stat-amount" id="stat-balance">$0.00</div>
+        <div class="stat-sub" id="stat-tx-count">0 transactions</div>
+      </div>
+      <div class="stat-card income">
+        <div class="stat-icon material-symbols-outlined">trending_up</div>
+        <div class="stat-label">Total Income</div>
+        <div class="stat-amount" id="stat-income">$0.00</div>
+        <div class="stat-sub" id="stat-income-count">0 entries</div>
+      </div>
+      <div class="stat-card expense">
+        <div class="stat-icon material-symbols-outlined">bar_chart</div>
+        <div class="stat-label">Total Expenses</div>
+        <div class="stat-amount" id="stat-expense">$0.00</div>
+        <div class="stat-sub" id="stat-expense-count">0 entries</div>
+      </div>
+    </div>
+
+    <!-- ADD FORM -->
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Add Transaction</span></div>
+      <div class="add-form">
+        <div class="type-toggle">
+          <button class="type-btn income active" id="btn-income" onclick="setType('income')">↑ Income</button>
+          <button class="type-btn expense" id="btn-expense" onclick="setType('expense')">↓ Expense</button>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <input class="form-input" id="f-name" type="text" placeholder="e.g. Freelance payment" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Amount ($)</label>
+            <input class="form-input" id="f-amount" type="number" min="0.01" step="0.01" placeholder="0.00" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select class="form-select" id="f-category">
+              <option value="Food">🍔 Food</option>
+              <option value="Transport">🚗 Transport</option>
+              <option value="Housing">🏠 Housing</option>
+              <option value="Entertainment">🎮 Entertainment</option>
+              <option value="Health">💊 Health</option>
+              <option value="Shopping">🛍 Shopping</option>
+              <option value="Freelance">💼 Freelance</option>
+              <option value="Salary">💰 Salary</option>
+              <option value="Other">📦 Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input class="form-input" id="f-date" type="date" />
+          </div>
+        </div>
+        <button class="btn-submit" onclick="addTransaction()">Add Transaction</button>
+      </div>
+    </div>
+
+    <!-- TX + BREAKDOWN -->
+    <div style="display:grid;grid-template-columns:1fr 260px;gap:1rem;">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Transactions</span>
+          <div class="filter-row">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="income">Income</button>
+            <button class="filter-btn" data-filter="expense">Expense</button>
+          </div>
+        </div>
+        <div class="tx-list" id="tx-list"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Breakdown</span></div>
+        <div class="breakdown-list" id="breakdown-list"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- RIGHT: News -->
+  <div class="right-panel">
+    <div class="right-panel-header"><div class="right-panel-title">Market News</div></div>
+    <div class="news-container">
+      <div class="tradingview-widget-news" id="news-widget"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer><p>&copy; 2026 Rafael Gomez | All Rights Reserved</p></footer>
+
+  <script>
+    const CAT_COLORS = { Food:'#f87171', Transport:'#fbbf24', Housing:'#60a5fa', Entertainment:'#a78bfa', Health:'#34d399', Shopping:'#f472b6', Freelance:'#4ade80', Salary:'#4ade80', Other:'#9ca3af' };
+    const CAT_ICONS  = { Food:'🍔', Transport:'🚗', Housing:'🏠', Entertainment:'🎮', Health:'💊', Shopping:'🛍', Freelance:'💼', Salary:'💰', Other:'📦' };
+
+    let transactions  = JSON.parse(localStorage.getItem('budget-txs') || '[]');
+    let currentFilter = 'all';
+    let currentType   = 'income';
+    let isDark        = localStorage.getItem('budget-theme') !== 'light';
+
+    /* ── THEME ── */
+    function applyTheme(dark) {
+      isDark = dark;
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      document.getElementById('icon-light').classList.toggle('active', !dark);
+      document.getElementById('icon-dark').classList.toggle('active', dark);
+      localStorage.setItem('budget-theme', dark ? 'dark' : 'light');
+      loadTicker(dark ? 'dark' : 'light');
+      loadNews(dark ? 'dark' : 'light');
+    }
+    document.getElementById('theme-toggle').addEventListener('click', () => applyTheme(!isDark));
+
+    /* ── TRADINGVIEW TICKER ── */
+    function loadTicker(theme) {
+      const c = document.getElementById('ticker-widget');
+      c.innerHTML = '';
+      const s = document.createElement('script');
+      s.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
+      s.async = true;
+      s.text = JSON.stringify({
+        symbols: [
+          { proName:'BITSTAMP:BTCUSD', title:'Bitcoin' },
+          { proName:'BITSTAMP:ETHUSD', title:'Ethereum' },
+          { description:'Microsoft',  proName:'NASDAQ:MSFT' },
+          { description:'Nvidia',      proName:'NASDAQ:NVDA' },
+          { description:'Apple',       proName:'NASDAQ:AAPL' },
+          { description:'Berkshire B', proName:'NYSE:BRK.B' },
+          { description:'S&P 500',     proName:'FOREXCOM:SPXUSD' },
+          { description:'Tesla',       proName:'NASDAQ:TSLA' },
+          { description:'Meta',        proName:'NASDAQ:META' },
+          { description:'Amazon',      proName:'NASDAQ:AMZN' },
+          { description:'Google',      proName:'NASDAQ:GOOGL' },
+          { description:'AMD',         proName:'NASDAQ:AMD' },
+          { description:'QQQ',         proName:'NASDAQ:QQQ' },
+        ],
+        showSymbolLogo: true, isTransparent: true,
+        displayMode: 'compact', colorTheme: theme, locale: 'en'
+      });
+      c.appendChild(s);
+    }
+
+    /* ── TRADINGVIEW NEWS ── */
+    function loadNews(theme) {
+      const c = document.getElementById('news-widget');
+      c.innerHTML = '';
+      const s = document.createElement('script');
+      s.src = 'https://s3.tradingview.com/external-embedding/embed-widget-timeline.js';
+      s.async = true;
+      s.text = JSON.stringify({
+        feedMode:'market', market:'stock', isTransparent:true,
+        displayMode:'regular', width:'100%', height:'600',
+        colorTheme: theme, locale:'en'
+      });
+      c.appendChild(s);
+    }
+
+    /* ── HELPERS ── */
+    function fmt(n) { return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+    function save() {
+      transactions.sort((a,b) => new Date(b.date) - new Date(a.date));
+      localStorage.setItem('budget-txs', JSON.stringify(transactions));
+    }
+
+    /* ── TYPE TOGGLE ── */
+    function setType(type) {
+      currentType = type;
+      document.getElementById('btn-income').classList.toggle('active', type === 'income');
+      document.getElementById('btn-expense').classList.toggle('active', type === 'expense');
+      document.getElementById('f-category').value = type === 'income' ? 'Salary' : 'Food';
+      document.getElementById('f-name').focus();
+    }
+
+    /* ── ADD ── */
+    function addTransaction() {
+      const name     = document.getElementById('f-name').value.trim();
+      const amount   = parseFloat(document.getElementById('f-amount').value);
+      const category = document.getElementById('f-category').value;
+      const date     = document.getElementById('f-date').value;
+      const ni = document.getElementById('f-name');
+      const ai = document.getElementById('f-amount');
+      ni.style.borderColor = !name ? 'var(--red)' : '';
+      ai.style.borderColor = (!amount || amount <= 0) ? 'var(--red)' : '';
+      if (!name || !amount || amount <= 0 || !date) return;
+      transactions.unshift({ id: Date.now(), name, amount, category, date, type: currentType });
+      save(); render();
+      ni.value = ''; ai.value = '';
+      ni.style.borderColor = ''; ai.style.borderColor = '';
+    }
+
+    /* ── DELETE ── */
+    function deleteTransaction(id) {
+      transactions = transactions.filter(t => t.id !== id);
+      save(); render();
+    }
+
+    /* ── RENDER ── */
+    function render() { renderStats(); renderList(); renderBreakdown(); }
+
+    function renderStats() {
+      const inc = transactions.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
+      const exp = transactions.filter(t => t.type === 'expense').reduce((s,t) => s + t.amount, 0);
+      document.getElementById('stat-balance').textContent = fmt(inc - exp);
+      document.getElementById('stat-income').textContent  = fmt(inc);
+      document.getElementById('stat-expense').textContent = fmt(exp);
+      const ic = transactions.filter(t => t.type === 'income').length;
+      const ec = transactions.filter(t => t.type === 'expense').length;
+      document.getElementById('stat-tx-count').textContent    = `${transactions.length} transaction${transactions.length !== 1 ? 's' : ''}`;
+      document.getElementById('stat-income-count').textContent  = `${ic} entr${ic !== 1 ? 'ies' : 'y'}`;
+      document.getElementById('stat-expense-count').textContent = `${ec} entr${ec !== 1 ? 'ies' : 'y'}`;
+    }
+
+    function renderList() {
+      const el = document.getElementById('tx-list');
+      const filtered = currentFilter === 'all' ? transactions : transactions.filter(t => t.type === currentFilter);
+      if (!filtered.length) { el.innerHTML = `<div class="tx-empty">No ${currentFilter === 'all' ? '' : currentFilter + ' '}transactions yet.</div>`; return; }
+      el.innerHTML = filtered.map(t => `
+        <div class="tx-item">
+          <div class="tx-icon ${t.type}">${CAT_ICONS[t.category] || '📦'}</div>
+          <div>
+            <div class="tx-name">${t.name}</div>
+            <div class="tx-meta">
+              <span class="tx-date">${new Date(t.date + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span>
+              <span class="tx-cat">${t.category}</span>
+            </div>
+          </div>
+          <div class="tx-right">
+            <span class="tx-amount ${t.type}">${t.type === 'income' ? '+' : '−'}${fmt(t.amount)}</span>
+            <button class="tx-del" onclick="deleteTransaction(${t.id})">✕ remove</button>
+          </div>
+        </div>`).join('');
+    }
+
+    function renderBreakdown() {
+      const el = document.getElementById('breakdown-list');
+      const expenses = transactions.filter(t => t.type === 'expense');
+      if (!expenses.length) { el.innerHTML = '<p style="color:var(--muted);font-size:0.76rem;">No expenses yet.</p>'; return; }
+      const totals = {};
+      expenses.forEach(t => { totals[t.category] = (totals[t.category] || 0) + t.amount; });
+      const grand = Object.values(totals).reduce((a,b) => a+b, 0);
+      el.innerHTML = Object.entries(totals).sort((a,b) => b[1]-a[1]).map(([cat, amt]) => {
+        const pct = Math.round((amt / grand) * 100);
+        return `<div class="breakdown-item">
+          <div class="breakdown-top">
+            <span class="breakdown-cat">${CAT_ICONS[cat]||'📦'} ${cat}</span>
+            <span class="breakdown-pct">${fmt(amt)} · ${pct}%</span>
+          </div>
+          <div class="breakdown-bar"><div class="breakdown-fill" style="width:${pct}%;background:${CAT_COLORS[cat]||'#9ca3af'};"></div></div>
+        </div>`;
+      }).join('');
+    }
+
+    /* ── FILTERS ── */
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderList();
+      });
+    });
+
+    /* ── ENTER KEY ── */
+    document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.closest('.add-form')) addTransaction(); });
+
+    /* ── INIT ── */
+    document.getElementById('current-month').textContent = new Date().toLocaleDateString('en-US', { month:'long', year:'numeric' });
+    document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+    applyTheme(isDark);
+    render();
+  </script>
 </body>
-<footer class="footer">
-    
-    <p>&copy;2024 Rafael Gomez | All Rights Reserved</p>
-  </footer>
-
-    <!-- Add any JavaScript libraries or scripts here -->
-    <script src="scripts.js"></script>
-
 </html>

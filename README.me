@@ -1,0 +1,93 @@
+# 💰 Budget Tracker
+ 
+A clean, responsive personal finance dashboard built with **vanilla JavaScript**, **HTML**, and **CSS**. Track your income and expenses, visualize spending by category, and stay updated with live market data — all in one place.
+ 
+**[Live Demo →](https://rafaz01.github.io/Finance-Dashboard-1/index.html)**
+ 
+---
+ 
+## Screenshot
+ 
+> *![Budget Tracker Screenshot](images/financetracker.png)*
+ 
+---
+ 
+## Features
+ 
+- **Add transactions** — log income and expenses with name, amount, category, and date
+- **Real-time balance** — net balance, total income, and total expenses update instantly
+- **Expense breakdown** — visual category bars showing where your money goes
+- **Filter transactions** — view all, income only, or expenses only
+- **Persistent data** — transactions saved to `localStorage`, survive page reloads
+- **Live stock ticker** — real-time prices for BTC, ETH, MSFT, NVDA, AAPL, TSLA, META, and more via TradingView
+- **Market news feed** — live financial news in the right panel via TradingView
+- **Light / Dark mode** — theme toggle that also updates the TradingView widgets
+- **Fully responsive** — works on desktop, tablet, and mobile
+ 
+---
+ 
+## Tech Stack
+ 
+| Layer | Technology |
+|-------|-----------|
+| Structure | HTML5 |
+| Styling | CSS3 (CSS Variables, CSS Grid, Flexbox) |
+| Logic | Vanilla JavaScript (ES6+) |
+| Data | localStorage API |
+| Market Data | TradingView Widgets (Ticker Tape + Timeline) |
+| Fonts | Syne + DM Mono (Google Fonts) |
+| Icons | Material Symbols Outlined |
+ 
+---
+ 
+## Getting Started
+ 
+No build tools or dependencies required. Just open the file.
+ 
+```bash
+# Clone the repo
+git clone https://github.com/Rafaz01/Finance-Dashboard-1.git
+ 
+# Open in your browser
+open index.html
+```
+ 
+Or simply download the ZIP and open `index.html` in any modern browser.
+ 
+---
+ 
+## Project Structure
+ 
+```
+Finance-Dashboard-1/
+├── index.html        # Main app — all HTML, CSS, and JS in one file
+├── images/
+│   ├── logo.png      # Sidebar logo
+│   └── favicon.ico   # Browser tab icon
+└── README.md
+```
+ 
+---
+ 
+## Key JavaScript Concepts Used
+ 
+- **DOM manipulation** — dynamically rendering transaction lists and stat cards
+- **localStorage API** — persisting and retrieving data across sessions
+- **Array methods** — `filter()`, `reduce()`, `sort()`, `map()` for data processing
+- **Event listeners** — form submission, filter buttons, theme toggle, keyboard shortcuts
+- **Template literals** — dynamic HTML generation
+- **Intl.NumberFormat** — proper currency formatting
+- **Dynamic script injection** — loading TradingView widgets and updating them on theme change
+ 
+---
+ 
+## What I Learned
+ 
+This project pushed me to think about **state management without a framework** — keeping the UI in sync with an array of transactions using pure JS. I also learned how to integrate third-party widgets (TradingView) dynamically and update them based on user preferences like theme.
+ 
+---
+ 
+## Author
+ 
+**Rafael Gomez** — Frontend Developer based in Florida  
+[Portfolio](https://rafaz01.github.io) · [LinkedIn](https://www.linkedin.com/in/rafael-gomez-uban-49b99b231/) · [GitHub](https://github.com/Rafaz01)
