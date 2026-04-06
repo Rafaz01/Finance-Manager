@@ -2,7 +2,7 @@
  
 A clean, responsive personal finance dashboard built with **vanilla JavaScript**, **HTML**, and **CSS**. Track your income and expenses, visualize spending by category, and stay updated with live market data — all in one place.
  
-**[Live Demo →](https://rafaz01.github.io/Finance-Dashboard-1/index.html)**
+**[Live Demo →](https://rafaelgomez,dev/Finance-Manager)**
  
 ---
  
@@ -90,4 +90,4 @@ This project pushed me to think about **state management without a framework** �
 ## Author
  
 **Rafael Gomez** — Frontend Developer based in Florida  
-[Portfolio](https://rafaz01.github.io) · [LinkedIn](https://www.linkedin.com/in/rafael-gomez-uban-49b99b231/) · [GitHub](https://github.com/Rafaz01)
+[Portfolio](https://rafaelgomez.dev) · [LinkedIn](https://www.linkedin.com/in/rafael-gomez-uban-49b99b231/) · [GitHub](https://github.com/Rafaz01)
