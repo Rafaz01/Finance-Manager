@@ -2,7 +2,7 @@
  
 A clean, responsive personal finance dashboard built with **vanilla JavaScript**, **HTML**, and **CSS**. Track your income and expenses, visualize spending by category, and stay updated with live market data — all in one place.
  
-**[Live Demo →](https://rafaelgomez,dev/Finance-Manager)**
+**[Live Demo →](https://rafaelgomez.dev/Finance-Manager)**
  
 ---
  
